@@ -6,6 +6,7 @@ import Pagination from "./pagination";
 import Filters from "./filters";
 import SearchBar from "./search";
 import SortOptions from "./sort-options";
+import { motion } from "framer-motion";
 
 // Define the Meme type with additional fields
 export interface Meme {
@@ -15,9 +16,9 @@ export interface Meme {
   width: number;
   height: number;
   box_count: number;
-  likes: number;        // New field
-  comments: number;     // New field
-  created_at: string;   // New field
+  likes: number; // New field
+  comments: number; // New field
+  created_at: string; // New field
 }
 
 // Function to generate random values for likes, comments, and created_at
@@ -39,7 +40,11 @@ async function getMemes(): Promise<Meme[]> {
   return enhanceMemeData(data.data.memes);
 }
 
-export default function MemeExplorer({ initialMemes }: { initialMemes: Meme[] }) {
+export default function MemeExplorer({
+  initialMemes,
+}: {
+  initialMemes: Meme[];
+}) {
   const [memes, setMemes] = useState<Meme[]>(initialMemes);
   const [filteredMemes, setFilteredMemes] = useState<Meme[]>(initialMemes);
   const [currentPage, setCurrentPage] = useState(1);
@@ -85,7 +90,10 @@ export default function MemeExplorer({ initialMemes }: { initialMemes: Meme[] })
     if (sortBy === "likes") {
       filtered.sort((a, b) => b.likes - a.likes);
     } else if (sortBy === "date") {
-      filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      filtered.sort(
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
     } else if (sortBy === "comments") {
       filtered.sort((a, b) => b.comments - a.comments);
     }
@@ -101,9 +109,16 @@ export default function MemeExplorer({ initialMemes }: { initialMemes: Meme[] })
 
   return (
     <main className="p-6">
-      <h1 className="text-3xl font-bold text-center">Meme Explorer</h1>
+      <motion.h1
+        initial={{ opacity: 0, y: -50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="text-4xl font-bold text-center mb-6"
+      >
+        Meme Explorer
+      </motion.h1>
 
-      <div className="flex flex-col md:flex-row justify-between my-4 space-y-2 md:space-y-0">
+      <div className="flex flex-col md:flex-row justify-between my-4 space-y-2 sm:space-x-2 md:space-y-0">
         <SearchBar onSearch={setSearchQuery} />
         <SortOptions sortBy={sortBy} setSortBy={setSortBy} />
       </div>

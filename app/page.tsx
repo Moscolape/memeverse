@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { Meme } from "./meme-explorer/meme-explorer";
 
@@ -30,7 +31,7 @@ export default function HomePage() {
   }, []);
 
   return (
-    <main className="p-10">
+    <main className="p-10 mt-15 relative">
       {/* Animated Heading */}
       <motion.h1
         initial={{ opacity: 0, y: -50 }}
@@ -55,26 +56,26 @@ export default function HomePage() {
         }}
       >
         {memes.map((meme) => (
-          <motion.div
-            key={meme.id}
-            className="border p-2 rounded-lg shadow-md"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.4 }}
-          >
-            <Image
-              src={meme.url}
-              alt={meme.name}
-              width={meme.width} // Use original width
-              height={meme.height} // Use original height
-              className="rounded-lg"
-              layout="intrinsic"
-            />
-
-            <p className="text-center mt-2">{meme.name}</p>
-          </motion.div>
+          <Link key={meme.id} href={`/meme/${meme.id}`} passHref>
+            <motion.div
+              className="border p-2 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition-all"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.4 }}
+            >
+              <Image
+                src={meme.url}
+                alt={meme.name}
+                width={meme.width} // Use original width
+                height={meme.height} // Use original height
+                className="rounded-lg"
+                layout="intrinsic"
+              />
+              <p className="text-center mt-2">{meme.name}</p>
+            </motion.div>
+          </Link>
         ))}
       </motion.div>
     </main>

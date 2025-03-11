@@ -8,5 +8,5 @@ async function getMemes() {
 
 export default async function MemeExplorerPage() {
   const memes = await getMemes();
-  return <MemeExplorer initialMemes={memes} />;
+  return <div className="mt-15 relative"><MemeExplorer initialMemes={memes} /></div>;
 }

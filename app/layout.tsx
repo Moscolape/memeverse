@@ -17,7 +17,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body className={inter.className}>
         <Providers>
           <TopNav />
-          {children}
+          <div>{children}</div>
         </Providers>
       </body>
     </html>
