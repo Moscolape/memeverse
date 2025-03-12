@@ -1,37 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Meme Gallery 📸🎭
 
-## Getting Started
+This **Next.js** project is an interactive **Meme Gallery**, allowing users to explore, upload, and engage with memes. The app features infinite scrolling, meme filtering, AI-generated captions, and a user profile system.
 
-First, run the development server:
+## ✨ Features & Functionalities
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### 🏠 Homepage (Landing Page)
+- 🔥 Displays trending memes dynamically (Fetched from an API).
+- 🎭 Interactive animations & smooth transitions.
+- 🌙 Dark mode toggle for better user experience.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 🔍 Meme Explorer Page
+- 🔄 **Infinite Scrolling** or **Pagination** for seamless browsing.
+- 📂 Filter memes by **Trending, New, Classic, and Random** categories.
+- 🔎 **Search Functionality** with **debounced API calls** for fast performance.
+- 📊 Sort memes by **Likes, Date, or Comments**.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 📤 Meme Upload Page
+- 🖼 Upload memes in **image/gif format**.
+- 👀 **Preview before uploading** to ensure the best look.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 📄 Meme Details Page
+- 🔗 **Dynamic routing** (`/meme/:id`) for easy sharing.
+- ❤️ **Like memes** with animation and local storage persistence.
+- 💬 **Comment system** (Stored in local storage for now).
+- 📤 **Sharing options** to spread the memes.
 
-## Learn More
+### 👤 User Profile Page
+- 🖼 View and manage **user-uploaded memes**.
+- ✏️ **Edit profile info** (Name, Bio, Profile Picture).
+- 📌 See **liked memes**, stored locally or via API.
 
-To learn more about Next.js, take a look at the following resources:
+### 🏆 Leaderboard Page
+- 🏅 Displays **Top 10 most liked memes**.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 🐣 404 Page (Easter Egg)
+- 🤣 A **fun, meme-based 404 error page** when users visit a non-existent route.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📦 Technologies Used
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-"# memeverse" 
+- **Next.js** – React-based framework for server-side rendering.
+- **TypeScript** – Strongly typed JavaScript for better maintainability.
+- **Framer Motion** – Smooth animations for UI interactions.
+- **Tailwind CSS** – Utility-first styling framework.
+- **AOS (Animate on Scroll)** – Adds cool scroll animations.
+- **LocalStorage API** – Saves likes, comments, and user preferences.
+- **Meme API** – Fetches trending and AI-generated meme captions.
