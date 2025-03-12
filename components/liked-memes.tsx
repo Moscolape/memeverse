@@ -2,7 +2,7 @@
 
 import initializeAOS from "@/utils/aos-init";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 
 interface Meme {
   id: string;
@@ -13,28 +13,34 @@ interface Meme {
 export default function LikedMemes() {
   const [likedMemes, setLikedMemes] = useState<Meme[]>([]);
 
-  useEffect(() => {
+  // Memoize liked meme IDs from localStorage
+  const likedMemeIds = useMemo(() => {
+    if (typeof window === "undefined") return new Set();
     const storedLikes: Record<string, boolean> = JSON.parse(localStorage.getItem("likes") || "{}");
-
-    async function fetchMemes() {
-      try {
-        const res = await fetch("https://api.imgflip.com/get_memes");
-        const data = await res.json();
-
-        if (data.success) {
-          const filteredMemes = data.data.memes.filter((m: Meme) => storedLikes[m.id]);
-          setLikedMemes(filteredMemes);
-        }
-      } catch (error) {
-        console.error("Error fetching memes:", error);
-      }
-    }
-
-    fetchMemes();
+    return new Set(Object.keys(storedLikes).filter((id) => storedLikes[id]));
   }, []);
 
+  const fetchMemes = useCallback(async () => {
+    try {
+      const res = await fetch("https://api.imgflip.com/get_memes");
+      const data = await res.json();
+
+      if (data.success) {
+        const filteredMemes = data.data.memes.filter((m: Meme) => likedMemeIds.has(m.id));
+        setLikedMemes(filteredMemes);
+      }
+    } catch (error) {
+      console.error("Failed to fetch memes:", error);
+    }
+  }, [likedMemeIds]);
+
   useEffect(() => {
-    initializeAOS();
+    fetchMemes();
+  }, [fetchMemes]);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => initializeAOS(), 100);
+    return () => clearTimeout(timeout);
   }, []);
 
   return (
@@ -47,9 +53,10 @@ export default function LikedMemes() {
             key={meme.id}
             src={meme.url}
             alt={meme.name}
-            width={200} // Adjust as needed
-            height={200} // Adjust as needed
+            width={200}
+            height={200}
             className="rounded-lg shadow-md"
+            priority
           />
         ))
       )}

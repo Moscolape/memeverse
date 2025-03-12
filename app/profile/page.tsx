@@ -1,35 +1,45 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import ProfileForm from "../../components/profile-form";
 import LikedMemes from "../../components/liked-memes";
 import UploadedMemes from "../../components/uploaded-memes";
 import { useTheme } from "../providers";
 
 export default function ProfilePage() {
-  const [user, setUser] = useState({ name: "", bio: "", avatar: "" });
-  const { theme } = useTheme(); // Get current theme from context
+  const { theme } = useTheme();
 
+  // Lazy initialization to prevent unnecessary re-renders
+  const storedUser = useMemo(
+    () => JSON.parse(localStorage.getItem("userProfile") || "{}"),
+    []
+  );
+
+  const [user, setUser] = useState(() => storedUser);
 
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("userProfile") || "{}");
-    setUser(storedUser);
-  }, []);
+    if (!user.name) {
+      setUser(storedUser);
+    }
+  }, [storedUser, user.name]);
 
   return (
-    <div className={`max-w-5xl mx-auto p-6 ${
-      theme === "dark" ? "bg-gray-900 text-white" : "bg-white text-black"
-    } shadow-lg rounded-lg py-30`} >
-      {/* Profile Form */}
+    <div
+      className={`max-w-5xl mx-auto p-6 shadow-lg rounded-lg py-30 transition-colors duration-300 ${
+        theme === "dark" ? "bg-gray-900 text-white" : "bg-white text-black"
+      }`}
+    >
       <ProfileForm user={user} setUser={setUser} />
 
-      {/* Uploaded Memes */}
-      <h2 className="text-2xl font-bold mt-6">Your Uploads</h2>
-      <UploadedMemes />
+      <section className="mt-6">
+        <h2 className="text-2xl font-bold">Your Uploads</h2>
+        <UploadedMemes />
+      </section>
 
-      {/* Liked Memes */}
-      <h2 className="text-2xl font-bold mt-6">Liked Memes</h2>
-      <LikedMemes />
+      <section className="mt-6">
+        <h2 className="text-2xl font-bold">Liked Memes</h2>
+        <LikedMemes />
+      </section>
     </div>
   );
 }

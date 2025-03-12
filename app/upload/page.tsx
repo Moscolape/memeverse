@@ -1,29 +1,71 @@
 "use client";
 
-import { useState } from "react";
+import { useReducer, useCallback, useEffect } from "react";
 import Image from "next/image";
 import { useTheme } from "../providers"; // Import Theme Context
 import { motion } from "framer-motion";
 
+// Define action types
+type State = {
+  file: File | null;
+  preview: string | null;
+  caption: string;
+  uploading: boolean;
+};
+
+type Action =
+  | { type: "SET_FILE"; payload: File | null }
+  | { type: "SET_PREVIEW"; payload: string | null }
+  | { type: "SET_CAPTION"; payload: string }
+  | { type: "SET_UPLOADING"; payload: boolean };
+
+// Reducer function to manage state
+const reducer = (state: State, action: Action): State => {
+  switch (action.type) {
+    case "SET_FILE":
+      return { ...state, file: action.payload };
+    case "SET_PREVIEW":
+      return { ...state, preview: action.payload };
+    case "SET_CAPTION":
+      return { ...state, caption: action.payload };
+    case "SET_UPLOADING":
+      return { ...state, uploading: action.payload };
+    default:
+      return state;
+  }
+};
+
 export default function MemeUploadForm() {
   const { theme } = useTheme(); // Get current theme from context
-  const [file, setFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
-  const [caption, setCaption] = useState("");
-  const [uploading, setUploading] = useState(false);
+  const [state, dispatch] = useReducer(reducer, {
+    file: null,
+    preview: null,
+    caption: "",
+    uploading: false,
+  });
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = event.target.files?.[0];
-    if (selectedFile) {
-      setFile(selectedFile);
-      setPreview(URL.createObjectURL(selectedFile));
-    }
-  };
+  const { file, preview, caption, uploading } = state;
 
-  const handleUpload = async () => {
+  // Handle file selection
+  const handleFileChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const selectedFile = event.target.files?.[0];
+      if (!selectedFile) return;
+
+      // Clean up previous preview
+      if (preview) URL.revokeObjectURL(preview);
+
+      dispatch({ type: "SET_FILE", payload: selectedFile });
+      dispatch({ type: "SET_PREVIEW", payload: URL.createObjectURL(selectedFile) });
+    },
+    [preview]
+  );
+
+  // Handle upload
+  const handleUpload = useCallback(async () => {
     if (!file) return alert("Please select a file");
 
-    setUploading(true);
+    dispatch({ type: "SET_UPLOADING", payload: true });
 
     const formData = new FormData();
     formData.append("file", file);
@@ -34,34 +76,35 @@ export default function MemeUploadForm() {
         body: formData,
       });
 
-      const data = await response.json();
-      if (response.ok) {
-        console.log("Uploaded Image URL:", data.url);
-
-        // Store the uploaded meme in localStorage
-        const newMeme = { url: data.url, caption };
-        const existingMemes = JSON.parse(
-          localStorage.getItem("uploadedMemes") || "[]"
-        );
-        localStorage.setItem(
-          "uploadedMemes",
-          JSON.stringify([...existingMemes, newMeme])
-        );
-
-        alert("Meme uploaded successfully!");
-        setFile(null);
-        setPreview(null);
-        setCaption("");
-      } else {
-        throw new Error(data.error);
+      if (!response.ok) {
+        throw new Error("Failed to upload meme.");
       }
+
+      const { url } = await response.json();
+      console.log("Uploaded Image URL:", url);
+
+      // Store the uploaded meme in localStorage
+      const newMeme = { url, caption };
+      const existingMemes = JSON.parse(localStorage.getItem("uploadedMemes") || "[]");
+      localStorage.setItem("uploadedMemes", JSON.stringify([...existingMemes, newMeme]));
+
+      alert("Meme uploaded successfully!");
+      dispatch({ type: "SET_FILE", payload: null });
+      dispatch({ type: "SET_PREVIEW", payload: null });
+      dispatch({ type: "SET_CAPTION", payload: "" });
     } catch (error) {
       console.error("Upload error:", error);
-      alert("Failed to upload meme.");
     } finally {
-      setUploading(false);
+      dispatch({ type: "SET_UPLOADING", payload: false });
     }
-  };
+  }, [file, caption]);
+
+  // Clean up preview URL when the component unmounts
+  useEffect(() => {
+    return () => {
+      if (preview) URL.revokeObjectURL(preview);
+    };
+  }, [preview]);
 
   return (
     <motion.div
@@ -83,6 +126,7 @@ export default function MemeUploadForm() {
             ? "bg-gray-800 border-gray-600 text-white"
             : "bg-white border-gray-300 text-black"
         }`}
+        disabled={uploading}
       />
 
       {preview && (
@@ -105,7 +149,8 @@ export default function MemeUploadForm() {
         }`}
         placeholder="Add a funny caption..."
         value={caption}
-        onChange={(e) => setCaption(e.target.value)}
+        onChange={(e) => dispatch({ type: "SET_CAPTION", payload: e.target.value })}
+        disabled={uploading}
       />
 
       <button
@@ -116,7 +161,7 @@ export default function MemeUploadForm() {
             ? "bg-blue-600 text-white hover:bg-blue-500"
             : "bg-blue-500 text-white hover:bg-blue-600"
         }`}
-        disabled={uploading}
+        disabled={uploading || !file}
       >
         {uploading ? "Uploading..." : "Upload Meme 🚀"}
       </button>

@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useState, useCallback } from "react";
 
 interface User {
   name: string;
@@ -19,39 +19,41 @@ export default function ProfileForm({ user, setUser }: ProfileFormProps) {
   const [editing, setEditing] = useState(false);
   const [uploading, setUploading] = useState(false);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
+  const handleFileChange = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (e.target.files?.[0]) {
+        const file = e.target.files[0];
 
-      // Upload image to Cloudinary
-      const formData = new FormData();
-      formData.append("file", file);
+        const formData = new FormData();
+        formData.append("file", file);
 
-      setUploading(true);
-      try {
-        const response = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        });
+        setUploading(true);
+        try {
+          const response = await fetch("/api/upload", {
+            method: "POST",
+            body: formData,
+          });
 
-        const data = await response.json();
-        if (response.ok) {
-          setUser((prev) => ({ ...prev, avatar: data.url }));
-        } else {
-          throw new Error(data.error || "Upload failed.");
+          const data = await response.json();
+          if (response.ok) {
+            setUser((prev) => ({ ...prev, avatar: data.url }));
+          } else {
+            throw new Error(data.error || "Upload failed.");
+          }
+        } catch (error) {
+          console.error("Upload error:", error);
+        } finally {
+          setUploading(false);
         }
-      } catch (error) {
-        console.error("Upload error:", error);
-      } finally {
-        setUploading(false);
       }
-    }
-  };
+    },
+    [setUser]
+  );
 
-  const handleSave = () => {
+  const handleSave = useCallback(() => {
     localStorage.setItem("userProfile", JSON.stringify(user));
     setEditing(false);
-  };
+  }, [user]);
 
   return (
     <motion.div
@@ -75,32 +77,39 @@ export default function ProfileForm({ user, setUser }: ProfileFormProps) {
 
       {/* Edit Mode */}
       {editing ? (
-        <div className="mt-4">
+        <div className="mt-4 space-y-4">
           <input
             type="file"
             accept="image/*"
             onChange={handleFileChange}
             className="block w-full border p-2 rounded"
+            disabled={uploading}
           />
 
           <input
             type="text"
             placeholder="Your Name"
             value={user.name}
-            onChange={(e) => setUser({ ...user, name: e.target.value })}
-            className="block w-full border p-2 rounded mt-4"
+            onChange={(e) => setUser((prev) => ({ ...prev, name: e.target.value }))}
+            className="block w-full border p-2 rounded"
+            disabled={uploading}
           />
 
           <textarea
             placeholder="Your Bio"
             value={user.bio}
-            onChange={(e) => setUser({ ...user, bio: e.target.value })}
-            className="block w-full border p-2 rounded mt-2"
+            onChange={(e) => setUser((prev) => ({ ...prev, bio: e.target.value }))}
+            className="block w-full border p-2 rounded"
+            disabled={uploading}
           />
 
           <button
             onClick={handleSave}
-            className="bg-blue-500 text-white px-4 py-2 rounded mt-4 w-full hover:bg-blue-600"
+            className={`px-4 py-2 rounded w-full ${
+              uploading
+                ? "bg-blue-400 cursor-not-allowed"
+                : "bg-blue-500 hover:bg-blue-600 text-white"
+            }`}
             disabled={uploading}
           >
             {uploading ? "Uploading..." : "Save"}

@@ -1,24 +1,50 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 
 export default function CommentSection({ memeId }: { memeId: string }) {
   const [comments, setComments] = useState<string[]>([]);
   const [newComment, setNewComment] = useState("");
 
-  useEffect(() => {
-    const storedComments = JSON.parse(localStorage.getItem("comments") || "{}");
-    setComments(storedComments[memeId] || []);
+  // Load comments from localStorage
+  const storedComments = useMemo(() => {
+    if (typeof window === "undefined") return [];
+    const data = localStorage.getItem("comments");
+    return data ? JSON.parse(data)[memeId] || [] : [];
   }, [memeId]);
 
-  const handleAddComment = () => {
+  useEffect(() => {
+    setComments(storedComments);
+  }, [storedComments]);
+
+  // Update localStorage with debouncing
+  const updateLocalStorage = useCallback((updatedComments: string[]) => {
+    const allComments = JSON.parse(localStorage.getItem("comments") || "{}");
+    allComments[memeId] = updatedComments;
+    localStorage.setItem("comments", JSON.stringify(allComments));
+  }, [memeId]);
+
+  const handleAddComment = useCallback(() => {
     if (!newComment.trim()) return;
-    
+
     const updatedComments = [...comments, newComment];
     setComments(updatedComments);
-    localStorage.setItem("comments", JSON.stringify({ ...JSON.parse(localStorage.getItem("comments") || "{}"), [memeId]: updatedComments }));
+    updateLocalStorage(updatedComments);
     setNewComment("");
-  };
+  }, [newComment, comments, updateLocalStorage]);
+
+  // Sync comments across multiple tabs
+  useEffect(() => {
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === "comments") {
+        const newComments = JSON.parse(event.newValue || "{}")[memeId] || [];
+        setComments(newComments);
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, [memeId]);
 
   return (
     <div className="mt-6">

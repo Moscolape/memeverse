@@ -1,22 +1,36 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 
 export default function LikeButton({ memeId }: { memeId: string }) {
-  const [liked, setLiked] = useState(false);
+  const [liked, setLiked] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    const storedLikes = JSON.parse(localStorage.getItem("likes") || "{}");
+    return storedLikes[memeId] || false;
+  });
 
   useEffect(() => {
-    const storedLikes = JSON.parse(localStorage.getItem("likes") || "{}");
-    setLiked(storedLikes[memeId] || false);
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === "likes") {
+        const updatedLikes = JSON.parse(event.newValue || "{}");
+        setLiked(updatedLikes[memeId] || false);
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
   }, [memeId]);
 
-  const handleLike = () => {
-    const updatedLikes = { ...JSON.parse(localStorage.getItem("likes") || "{}"), [memeId]: !liked };
-    localStorage.setItem("likes", JSON.stringify(updatedLikes));
-    setLiked(!liked);
-  };
+  const handleLike = useCallback(() => {
+    setLiked((prev) => {
+      const newLikedState = !prev;
+      const updatedLikes = { ...JSON.parse(localStorage.getItem("likes") || "{}"), [memeId]: newLikedState };
+      localStorage.setItem("likes", JSON.stringify(updatedLikes));
+      return newLikedState;
+    });
+  }, [memeId]);
 
   return (
     <motion.button
