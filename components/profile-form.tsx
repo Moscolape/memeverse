@@ -3,6 +3,8 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { Dispatch, SetStateAction, useState, useCallback } from "react";
+import { useTheme } from "../app/providers";
+
 
 interface User {
   name: string;
@@ -18,6 +20,7 @@ interface ProfileFormProps {
 export default function ProfileForm({ user, setUser }: ProfileFormProps) {
   const [editing, setEditing] = useState(false);
   const [uploading, setUploading] = useState(false);
+    const { theme } = useTheme(); // Get current theme from context
 
   const handleFileChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,12 +60,14 @@ export default function ProfileForm({ user, setUser }: ProfileFormProps) {
 
   return (
     <motion.div
-      className="max-w-md mx-auto text-center bg-white dark:bg-gray-900 p-6 rounded-lg shadow-md"
+      className={`max-w-md mx-auto text-center p-6 rounded-lg shadow-md ${
+      theme === "dark" ? "bg-gray-900 text-white" : "bg-white text-black"
+    }`}
       initial={{ opacity: 0, y: -50 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
     >
-      <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-100">
+      <h2 className="text-2xl font-semibold mb-4">
         Profile
       </h2>
 
@@ -118,10 +123,10 @@ export default function ProfileForm({ user, setUser }: ProfileFormProps) {
       ) : (
         // Display Mode
         <div className="mt-4">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <h3 className="text-lg font-semibold">
             {user.name}
           </h3>
-          <p className="text-gray-600 dark:text-gray-300">{user.bio}</p>
+          <p className="">{user.bio}</p>
 
           <button
             onClick={() => setEditing(true)}
