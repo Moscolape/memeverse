@@ -125,11 +125,22 @@ export default function MemeExplorer({
 
       <Filters activeCategory={category} setCategory={setCategory} />
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <motion.div
+        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+        initial="hidden"
+        animate="visible"
+        variants={{
+          hidden: { opacity: 0 },
+          visible: {
+            opacity: 1,
+            transition: { staggerChildren: 0.2 },
+          },
+        }}
+      >
         {currentMemes.map((meme) => (
           <MemeCard key={meme.id} meme={meme} />
         ))}
-      </div>
+      </motion.div>
 
       <Pagination
         currentPage={currentPage}

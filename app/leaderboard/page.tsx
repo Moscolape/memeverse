@@ -13,7 +13,7 @@ interface Meme {
 
 export default function LeaderboardPage() {
   const [topMemes, setTopMemes] = useState<Meme[]>([]);
-  
+
   useEffect(() => {
     const storedLikes = JSON.parse(localStorage.getItem("likes") || "{}");
 
@@ -40,8 +40,15 @@ export default function LeaderboardPage() {
   }, []);
 
   return (
-    <main className="p-6 my-30">
-      <h1 className="text-3xl font-bold text-center mb-6">🏆 Meme Leaderboard</h1>
+    <main className="p-6 py-30">
+      <motion.h1
+        className="text-3xl font-bold text-center mb-6"
+        initial={{ opacity: 0, y: -50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+      >
+        🏆 Meme Leaderboard
+      </motion.h1>
 
       <motion.div
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
@@ -49,7 +56,10 @@ export default function LeaderboardPage() {
         animate="visible"
         variants={{
           hidden: { opacity: 0 },
-          visible: { opacity: 1, transition: { staggerChildren: 0.2 } },
+          visible: {
+            opacity: 1,
+            transition: { staggerChildren: 0.2 },
+          },
         }}
       >
         {topMemes.map((meme, index) => (
@@ -57,10 +67,24 @@ export default function LeaderboardPage() {
             key={meme.id}
             className="border rounded-lg shadow-lg p-4"
             whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4 }}
           >
-            <p className="text-lg font-semibold">#{index + 1} {meme.name}</p>
-            <Image src={meme.url} alt={meme.name} width={300} height={300} className="rounded-lg mt-2" />
-            <p className="text-center text-gray-600 mt-2">{meme.likes} Like(s)</p>
+            <p className="text-lg font-semibold">
+              #{index + 1} {meme.name}
+            </p>
+            <Image
+              src={meme.url}
+              alt={meme.name}
+              width={300}
+              height={300}
+              className="rounded-lg mt-2"
+            />
+            <p className="text-center text-gray-600 mt-2">
+              {meme.likes} Like(s)
+            </p>
           </motion.div>
         ))}
       </motion.div>

@@ -1,5 +1,6 @@
 "use client";
 
+import initializeAOS from "@/utils/aos-init";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
@@ -32,8 +33,12 @@ export default function LikedMemes() {
     fetchMemes();
   }, []);
 
+  useEffect(() => {
+    initializeAOS();
+  }, []);
+
   return (
-    <div className="grid grid-cols-2 gap-4 mt-4">
+    <div className="grid grid-cols-3 gap-4 mt-4" data-aos="fade-up">
       {likedMemes.length === 0 ? (
         <p>No liked memes yet.</p>
       ) : (

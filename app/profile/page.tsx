@@ -4,9 +4,12 @@ import { useEffect, useState } from "react";
 import ProfileForm from "../../components/profile-form";
 import LikedMemes from "../../components/liked-memes";
 import UploadedMemes from "../../components/uploaded-memes";
+import { useTheme } from "../providers";
 
 export default function ProfilePage() {
   const [user, setUser] = useState({ name: "", bio: "", avatar: "" });
+  const { theme } = useTheme(); // Get current theme from context
+
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("userProfile") || "{}");
@@ -14,7 +17,9 @@ export default function ProfilePage() {
   }, []);
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg my-30">
+    <div className={`max-w-5xl mx-auto p-6 ${
+      theme === "dark" ? "bg-gray-900 text-white" : "bg-white text-black"
+    } shadow-lg rounded-lg py-30`} >
       {/* Profile Form */}
       <ProfileForm user={user} setUser={setUser} />
 

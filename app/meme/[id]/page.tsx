@@ -7,10 +7,12 @@ import LikeButton from "../../../components/like-button";
 import CommentSection from "../../../components/comment-section";
 import ShareButtons from "../../../components/share-buttons";
 import { Meme } from "@/app/meme-explorer/meme-explorer";
+import { useTheme } from "../../providers"; // Import Theme Context
 
 export default function MemeDetailsPage() {
   const { id } = useParams(); // Get meme ID from URL
   const [meme, setMeme] = useState<Meme | null>(null);
+  const { theme } = useTheme(); // Get current theme from context
 
   useEffect(() => {
     async function fetchMeme() {
@@ -26,7 +28,9 @@ export default function MemeDetailsPage() {
   if (!meme) return <p className="text-center mt-10">Loading meme...</p>;
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg my-30">
+    <div className={`max-w-3xl mx-auto p-6 shadow-lg rounded-lg transition-colors duration-300 ${
+      theme === "dark" ? "bg-gray-900 text-white" : "bg-white text-black"
+    }`}>
       <h2 className="text-2xl font-bold text-center mb-4">{meme.name}</h2>
       <Image src={meme.url} alt={meme.name} width={meme.width} height={meme.height} className="rounded-lg mx-auto" />
       

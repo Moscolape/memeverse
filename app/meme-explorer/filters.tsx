@@ -14,7 +14,7 @@ export default function Filters({ activeCategory, setCategory }: FiltersProps) {
           className={`sm:px-4 px-2 py-1 sm:py-2 text-sm mx-1 inline-block rounded-lg ${
             activeCategory === category
               ? "bg-blue-500 text-white"
-              : "bg-gray-200 hover:bg-gray-300"
+              : "bg-gray-200 hover:bg-gray-300 text-black"
           }`}
           onClick={() => setCategory(category)}
         >
