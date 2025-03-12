@@ -1,6 +1,6 @@
 # Meme Gallery 📸🎭
 
-This **Next.js** project is an interactive **Meme Gallery**, allowing users to explore, upload, and engage with memes. The app features infinite scrolling, meme filtering, AI-generated captions, and a user profile system.
+This **Next.js** project is an interactive **Meme Gallery**, allowing users to explore, upload, and engage with memes. The app features the below;
 
 ## ✨ Features & Functionalities
 
